@@ -1,0 +1,37 @@
+---
+# tasks file for ansible-role-sensu_go_agent
+
+- include_vars: "{{ ansible_os_family }}.yml"
+
+- include: "install-{{ ansible_os_family }}.yml"
+
+- name: Create log directory
+  file:
+    path: "{{ sensu_go_agent_log_dir }}"
+    mode: 0755
+    owner: "{{ sensu_go_agent_user }}"
+    group: "{{ sensu_go_agent_group }}"
+    state: directory
+  notify: Restart sensu_go_agent
+
+- name: Create db directory
+  file:
+    path: "{{ sensu_go_agent_db_dir }}"
+    mode: 0755
+    owner: "{{ sensu_go_agent_user }}"
+    group: "{{ sensu_go_agent_group }}"
+    state: directory
+  notify: Restart sensu_go_agent
+
+- name: Create sensu_go_agent.conf
+  template:
+    src: sensu_go_agent.conf.j2
+    dest: "{{ sensu_go_agent_conf_file }}"
+    validate: echo %s
+  notify: Restart sensu_go_agent
+
+- name: Start sensu_go_agent
+  service:
+    name: "{{ sensu_go_agent_service }}"
+    enabled: true
+    state: started

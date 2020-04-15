@@ -1,0 +1,9 @@
+---
+sensu_go_agent_user: sensu_go_agent
+sensu_go_agent_group: sensu_go_agent
+sensu_go_agent_log_dir: /var/log/sensu_go_agent
+sensu_go_agent_db_dir: "{{ __sensu_go_agent_db_dir }}"
+sensu_go_agent_service: sensu_go_agent
+sensu_go_agent_conf_dir: "{{ __sensu_go_agent_conf_dir }}"
+sensu_go_agent_conf_file: "{{ __sensu_go_agent_conf_dir }}/sensu_go_agent.conf"
+sensu_go_agent_flags: ""

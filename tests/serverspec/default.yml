@@ -1,0 +1,6 @@
+---
+- hosts: localhost
+  roles:
+    - ansible-role-sensu_go_agent
+  vars:
+    sensu_go_agent_config: ""
