@@ -8,10 +8,7 @@ user    = "sensu"
 group   = "sensu"
 ports   = []
 log_dir = "/var/log/sensu"
-db_dir  = "/var/lib/sensu/sensu-agent"
 cache_dir = "/var/cache/sensu/sensu-agent"
-admin_user = "admin"
-admin_password = "P@ssw0rd!"
 default_group = "root"
 extra_packages = []
 backend_url = "ws://localhost:8081"
@@ -26,7 +23,6 @@ when "ubuntu"
 when "freebsd"
   package = "sysutils/sensu-go"
   config = "/usr/local/etc/sensu-agent.yml"
-  db_dir = "/var/db/sensu/sensu-agent"
   default_group = "wheel"
 end
 
