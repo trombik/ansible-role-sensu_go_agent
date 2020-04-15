@@ -1,6 +1,17 @@
-# ansible-role-sensu_go_agent
+# `trombik.sensu_go_agent`
 
-A brief description of the role goes here.
+[![Build Status](https://travis-ci.com/trombik/ansible-role-sensu_go_agent.svg?branch=master)](https://travis-ci.com/trombik/ansible-role-sensu_go_agent)
+
+`ansible` role for `sensu-go` version of `sensu-agent`.
+
+## Notes for FreeBSD users
+
+As of this writing (2020/04/16), the official FreeBSD ports tree does not have
+the latest version of `sensu-go`. The available version of the port does not
+install `sensu-backend`. You have to fix the port yourself, or install my port
+from
+`[freebsd-ports-sensu-go](https://github.com/trombik/freebsd-ports-sensu-go)`,
+and place the package somewhere.
 
 # Requirements
 
@@ -8,9 +19,75 @@ None
 
 # Role Variables
 
-| variable | description | default |
+| Variable | Description | Default |
 |----------|-------------|---------|
+| `sensu_go_agent_user` | user of `sensu-agent` | `{{ __sensu_go_agent_user }}` |
+| `sensu_go_agent_group` | group of `sensu-agent` | `{{ __sensu_go_agent_group }}` |
+| `sensu_go_agent_package` | package name of `sensu-agent` | `{{ __sensu_go_agent_package }}` |
+| `sensu_go_agent_extra_packages` | list of extra packages to install | `{{ __sensu_go_agent_extra_packages }}` |
+| `sensu_go_agent_log_dir` | path to log directory | `/var/log/sensu` |
+| `sensu_go_agent_cache_dir` | path to `cache-dir` | `{{ __sensu_go_agent_cache_dir }}` |
+| `sensu_go_agent_service` | service name of `sensu-agent` | `{{ __sensu_go_agent_service }}` |
+| `sensu_go_agent_conf_dir` | path to base directory of `sensu_go_agent_conf_file` | `{{ __sensu_go_agent_conf_dir }}` |
+| `sensu_go_agent_conf_file` | path to `sensu-agent.yml` | `{{ sensu_go_agent_conf_dir }}/sensu-agent.yml` |
+| `sensu_go_agent_config` | content of `sensu-agent.yml` | `""` |
+| `sensu_go_agent_flags` | see below | `""` |
 
+## `sensu_go_agent_flags`
+
+This variable is used to configure startup options for the service. What it
+does depends on platform.
+
+### FreeBSD
+
+`sensu_go_agent_flags` is the content of `/etc/rc.conf.d/sensu_agent`.
+
+### Debian
+
+`sensu_go_agent_flags` is the content of `/etc/default/sensu-agent`.
+
+### RedHat
+
+`sensu_go_agent_flags` is the content of `/etc/sysconfig/sensu-agent`.
+
+## Debian
+
+| Variable | Default |
+|----------|---------|
+| `__sensu_go_agent_user` | `sensu` |
+| `__sensu_go_agent_group` | `sensu` |
+| `__sensu_go_agent_package` | `sensu-go-agent` |
+| `__sensu_go_agent_extra_packages` | `["sensu-go-cli"]` |
+| `__sensu_go_agent_cache_dir` | `/var/cache/sensu/sensu-agent` |
+| `__sensu_go_agent_service` | `sensu-agent` |
+| `__sensu_go_agent_conf_dir` | `/etc/sensu` |
+| `__sensu_go_agent_conf_file` | `{{ __sensu_go_agent_conf_dir }}/agent.yml` |
+
+## FreeBSD
+
+| Variable | Default |
+|----------|---------|
+| `__sensu_go_agent_user` | `sensu` |
+| `__sensu_go_agent_group` | `sensu` |
+| `__sensu_go_agent_package` | `sysutils/sensu-go` |
+| `__sensu_go_agent_extra_packages` | `[]` |
+| `__sensu_go_agent_cache_dir` | `/var/cache/sensu/sensu-agent` |
+| `__sensu_go_agent_service` | `sensu-agent` |
+| `__sensu_go_agent_conf_dir` | `/usr/local/etc` |
+| `__sensu_go_agent_conf_file` | `{{ __sensu_go_agent_conf_dir }}/sensu-agent.yml` |
+
+## RedHat
+
+| Variable | Default |
+|----------|---------|
+| `__sensu_go_agent_user` | `sensu` |
+| `__sensu_go_agent_group` | `sensu` |
+| `__sensu_go_agent_package` | `sensu-go-agent` |
+| `__sensu_go_agent_extra_packages` | `["sensu-go-cli"]` |
+| `__sensu_go_agent_cache_dir` | `/var/cache/sensu/sensu-agent` |
+| `__sensu_go_agent_service` | `sensu-agent` |
+| `__sensu_go_agent_conf_dir` | `/etc/sensu` |
+| `__sensu_go_agent_conf_file` | `{{ __sensu_go_agent_conf_dir }}/agent.yml` |
 
 # Dependencies
 
@@ -19,6 +96,62 @@ None
 # Example Playbook
 
 ```yaml
+---
+- hosts: localhost
+  roles:
+    - role: trombik.freebsd_pkg_repo
+      when: ansible_os_family == 'FreeBSD'
+    - role: trombik.apt_repo
+      when: ansible_os_family == 'Debian'
+    - role: trombik.redhat_repo
+      when: ansible_os_family == 'RedHat'
+    - role: ansible-role-sensu_go_agent
+  vars:
+    sensu_go_agent_config:
+      backend-url: ws://localhost:8081
+      cache-dir: "{{ sensu_go_agent_cache_dir }}"
+
+    os_sensu_go_agent_flags:
+      FreeBSD: ""
+      Debian: ""
+      RedHat: ""
+    sensu_go_agent_flags: "{{ os_sensu_go_agent_flags[ansible_os_family] }}"
+    freebsd_pkg_repo:
+      # disable the default package repository
+      FreeBSD:
+        enabled: "false"
+        state: present
+      # enable my own package repository, where the latest package is
+      # available
+      FreeBSD_devel:
+        enabled: "true"
+        state: present
+        url: "http://pkg.i.trombik.org/{{ ansible_distribution_version | regex_replace('\\.', '') }}{{ansible_architecture}}-master-default/"
+        mirror_type: http
+        signature_type: none
+        priority: 100
+
+    # see https://packagecloud.io/install/repositories/sensu/stable/script.deb.sh
+    apt_repo_keys_to_add:
+      - https://packagecloud.io/sensu/stable/gpgkey
+    apt_repo_to_add:
+      - deb https://packagecloud.io/sensu/stable/ubuntu/ bionic main
+    apt_repo_enable_apt_transport_https: True
+
+    redhat_repo_extra_packages:
+      - epel-release
+
+    # see https://packagecloud.io/install/repositories/sensu/stable/config_file.repo?os=centos&dist=7&source=script
+    redhat_repo:
+      sensu:
+        baseurl: "https://packagecloud.io/sensu/stable/el/{{ ansible_distribution_major_version }}/$basearch"
+        # Package sensu-go-cli-5.19.1-10989.x86_64.rpm is not signed
+        gpgcheck: no
+        enabled: yes
+      epel:
+        mirrorlist: "http://mirrors.fedoraproject.org/mirrorlist?repo=epel-{{ ansible_distribution_major_version }}&arch={{ ansible_architecture }}"
+        gpgcheck: yes
+        enabled: yes
 ```
 
 # License
