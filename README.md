@@ -57,7 +57,7 @@ does depends on platform.
 | `__sensu_go_agent_user` | `sensu` |
 | `__sensu_go_agent_group` | `sensu` |
 | `__sensu_go_agent_package` | `sensu-go-agent` |
-| `__sensu_go_agent_extra_packages` | `["sensu-go-cli"]` |
+| `__sensu_go_agent_extra_packages` | `[]` |
 | `__sensu_go_agent_cache_dir` | `/var/cache/sensu/sensu-agent` |
 | `__sensu_go_agent_service` | `sensu-agent` |
 | `__sensu_go_agent_conf_dir` | `/etc/sensu` |
@@ -69,7 +69,7 @@ does depends on platform.
 |----------|---------|
 | `__sensu_go_agent_user` | `sensu` |
 | `__sensu_go_agent_group` | `sensu` |
-| `__sensu_go_agent_package` | `sysutils/sensu-go` |
+| `__sensu_go_agent_package` | `sysutils/sensu-go-agent` |
 | `__sensu_go_agent_extra_packages` | `[]` |
 | `__sensu_go_agent_cache_dir` | `/var/cache/sensu/sensu-agent` |
 | `__sensu_go_agent_service` | `sensu-agent` |
@@ -83,7 +83,7 @@ does depends on platform.
 | `__sensu_go_agent_user` | `sensu` |
 | `__sensu_go_agent_group` | `sensu` |
 | `__sensu_go_agent_package` | `sensu-go-agent` |
-| `__sensu_go_agent_extra_packages` | `["sensu-go-cli"]` |
+| `__sensu_go_agent_extra_packages` | `[]` |
 | `__sensu_go_agent_cache_dir` | `/var/cache/sensu/sensu-agent` |
 | `__sensu_go_agent_service` | `sensu-agent` |
 | `__sensu_go_agent_conf_dir` | `/etc/sensu` |
@@ -111,6 +111,11 @@ None
       backend-url: ws://localhost:8081
       cache-dir: "{{ sensu_go_agent_cache_dir }}"
 
+    os_sensu_go_agent_extra_packages:
+      FreeBSD: sysutils/sensu-go-cli
+      Debian: sensu-go-cli
+      RedHat: sensu-go-cli
+    sensu_go_agent_extra_packages: "{{ os_sensu_go_agent_extra_packages[ansible_os_family] }}"
     os_sensu_go_agent_flags:
       FreeBSD: ""
       Debian: ""
@@ -126,7 +131,7 @@ None
       FreeBSD_devel:
         enabled: "true"
         state: present
-        url: "http://pkg.i.trombik.org/{{ ansible_distribution_version | regex_replace('\\.', '') }}{{ansible_architecture}}-master-default/"
+        url: "http://pkg.i.trombik.org/{{ ansible_distribution_version | regex_replace('\\.', '') }}{{ansible_architecture}}-default-default/"
         mirror_type: http
         signature_type: none
         priority: 100

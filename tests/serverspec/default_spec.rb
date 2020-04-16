@@ -21,7 +21,8 @@ when "ubuntu"
   package = "sensu-go-agent"
   extra_packages = ["sensu-go-cli"]
 when "freebsd"
-  package = "sysutils/sensu-go"
+  package = "sysutils/sensu-go-agent"
+  extra_packages = ["sysutils/sensu-go-cli"]
   config = "/usr/local/etc/sensu-agent.yml"
   default_group = "wheel"
 end
