@@ -2,8 +2,7 @@
 __sensu_go_agent_user: sensu
 __sensu_go_agent_group: sensu
 __sensu_go_agent_package: sensu-go-agent
-__sensu_go_agent_extra_packages:
-  - sensu-go-cli
+__sensu_go_agent_extra_packages: []
 __sensu_go_agent_cache_dir: /var/cache/sensu/sensu-agent
 __sensu_go_agent_service: sensu-agent
 __sensu_go_agent_conf_dir: /etc/sensu
