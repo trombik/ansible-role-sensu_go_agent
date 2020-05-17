@@ -7,21 +7,39 @@
       when: ansible_os_family == 'Debian'
     - role: trombik.redhat_repo
       when: ansible_os_family == 'RedHat'
+    - role: trombik.language_ruby
+      when: ansible_os_family != 'RedHat'
     - role: ansible-role-sensu_go_agent
   vars:
+    os_sensu_go_agent_use_embedded_ruby:
+      FreeBSD: no
+      Debian: no
+      RedHat: yes
+    sensu_go_agent_use_embedded_ruby: "{{ os_sensu_go_agent_use_embedded_ruby[ansible_os_family] }}"
+    sensu_go_agent_ruby_plugins:
+      - sensu-plugin
+      - sensu-plugins-disk-checks
+
+    #  EMBEDDED_RUBY=true in /etc/default/sensu
     sensu_go_agent_config:
       backend-url: ws://localhost:8081
       cache-dir: "{{ sensu_go_agent_cache_dir }}"
 
     os_sensu_go_agent_extra_packages:
-      FreeBSD: sysutils/sensu-go-cli
-      Debian: sensu-go-cli
-      RedHat: sensu-go-cli
+      FreeBSD:
+        - sysutils/sensu-go-cli
+      Debian:
+        - sensu-go-cli
+        - ruby-dev
+      RedHat:
+        - sensu-go-cli
+        - sensu-plugins-ruby
     sensu_go_agent_extra_packages: "{{ os_sensu_go_agent_extra_packages[ansible_os_family] }}"
     os_sensu_go_agent_flags:
       FreeBSD: ""
       Debian: ""
-      RedHat: ""
+      RedHat: |
+        EMBEDDED_RUBY=true
     sensu_go_agent_flags: "{{ os_sensu_go_agent_flags[ansible_os_family] }}"
     freebsd_pkg_repo:
       # disable the default package repository
@@ -58,4 +76,10 @@
       epel:
         mirrorlist: "http://mirrors.fedoraproject.org/mirrorlist?repo=epel-{{ ansible_distribution_major_version }}&arch={{ ansible_architecture }}"
         gpgcheck: yes
+        enabled: yes
+      sensu_community:
+        baseurl: https://packagecloud.io/sensu/community/el/{{ ansible_distribution_major_version }}/$basearch
+        gpgkey: https://packagecloud.io/sensu/community/gpgkey
+        repo_gpgcheck: yes
+        gpgcheck: no
         enabled: yes

@@ -30,6 +30,15 @@
     # validate: echo %s
   notify: Restart sensu_go_agent
 
+- name: Configure sensu_go_agent_ruby_plugins
+  gem:
+    name: "{{ item }}"
+    user_install: "{% if sensu_go_agent_use_embedded_ruby %}no{% else %}yes{% endif %}"
+    executable: "{% if sensu_go_agent_use_embedded_ruby %}{{ sensu_go_agent_embedded_ruby_gem }}{% else %}{{ ___undefined | default(omit) }}{% endif %}"
+  with_items: "{{ sensu_go_agent_ruby_plugins }}"
+  become: "{% if sensu_go_agent_use_embedded_ruby %}no{% else %}yes{% endif %}"
+  become_user: "{{ sensu_go_agent_user }}"
+
 - name: Start sensu_go_agent
   service:
     name: "{{ sensu_go_agent_service }}"

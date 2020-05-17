@@ -15,7 +15,7 @@ and place the package somewhere.
 
 # Requirements
 
-None
+Ruby must be installed.
 
 # Role Variables
 
@@ -23,6 +23,7 @@ None
 |----------|-------------|---------|
 | `sensu_go_agent_user` | user of `sensu-agent` | `{{ __sensu_go_agent_user }}` |
 | `sensu_go_agent_group` | group of `sensu-agent` | `{{ __sensu_go_agent_group }}` |
+| `sensu_go_agent_home` | home directory of `sensu-agent` user | `/home/{{ sensu_go_agent_user }}` |
 | `sensu_go_agent_package` | package name of `sensu-agent` | `{{ __sensu_go_agent_package }}` |
 | `sensu_go_agent_extra_packages` | list of extra packages to install | `{{ __sensu_go_agent_extra_packages }}` |
 | `sensu_go_agent_log_dir` | path to log directory | `/var/log/sensu` |
@@ -32,6 +33,10 @@ None
 | `sensu_go_agent_conf_file` | path to `sensu-agent.yml` | `{{ sensu_go_agent_conf_dir }}/sensu-agent.yml` |
 | `sensu_go_agent_config` | content of `sensu-agent.yml` | `""` |
 | `sensu_go_agent_flags` | see below | `""` |
+| `sensu_go_agent_ruby_plugins` | list of ruby gems to install | `[]` |
+| `sensu_go_agent_use_embedded_ruby` | use embedded ruby instead | `false` |
+| `sensu_go_agent_embedded_ruby_dir` | path to embedded ruby directory | `/opt/sensu-plugins-ruby/embedded` |
+| `sensu_go_agent_embedded_ruby_gem` | path to embedded ruby gem | `{{ sensu_go_agent_embedded_ruby_dir }}/bin/gem` |
 
 ## `sensu_go_agent_flags`
 
@@ -105,21 +110,39 @@ None
       when: ansible_os_family == 'Debian'
     - role: trombik.redhat_repo
       when: ansible_os_family == 'RedHat'
+    - role: trombik.language_ruby
+      when: ansible_os_family != 'RedHat'
     - role: ansible-role-sensu_go_agent
   vars:
+    os_sensu_go_agent_use_embedded_ruby:
+      FreeBSD: no
+      Debian: no
+      RedHat: yes
+    sensu_go_agent_use_embedded_ruby: "{{ os_sensu_go_agent_use_embedded_ruby[ansible_os_family] }}"
+    sensu_go_agent_ruby_plugins:
+      - sensu-plugin
+      - sensu-plugins-disk-checks
+
+    #  EMBEDDED_RUBY=true in /etc/default/sensu
     sensu_go_agent_config:
       backend-url: ws://localhost:8081
       cache-dir: "{{ sensu_go_agent_cache_dir }}"
 
     os_sensu_go_agent_extra_packages:
-      FreeBSD: sysutils/sensu-go-cli
-      Debian: sensu-go-cli
-      RedHat: sensu-go-cli
+      FreeBSD:
+        - sysutils/sensu-go-cli
+      Debian:
+        - sensu-go-cli
+        - ruby-dev
+      RedHat:
+        - sensu-go-cli
+        - sensu-plugins-ruby
     sensu_go_agent_extra_packages: "{{ os_sensu_go_agent_extra_packages[ansible_os_family] }}"
     os_sensu_go_agent_flags:
       FreeBSD: ""
       Debian: ""
-      RedHat: ""
+      RedHat: |
+        EMBEDDED_RUBY=true
     sensu_go_agent_flags: "{{ os_sensu_go_agent_flags[ansible_os_family] }}"
     freebsd_pkg_repo:
       # disable the default package repository
@@ -156,6 +179,12 @@ None
       epel:
         mirrorlist: "http://mirrors.fedoraproject.org/mirrorlist?repo=epel-{{ ansible_distribution_major_version }}&arch={{ ansible_architecture }}"
         gpgcheck: yes
+        enabled: yes
+      sensu_community:
+        baseurl: https://packagecloud.io/sensu/community/el/{{ ansible_distribution_major_version }}/$basearch
+        gpgkey: https://packagecloud.io/sensu/community/gpgkey
+        repo_gpgcheck: yes
+        gpgcheck: no
         enabled: yes
 ```
 

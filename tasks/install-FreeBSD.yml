@@ -31,3 +31,5 @@
   user:
     name: "{{ sensu_go_agent_user }}"
     group: "{{ sensu_go_agent_group }}"
+    home: "{{ sensu_go_agent_home }}"
+    create_home: yes
