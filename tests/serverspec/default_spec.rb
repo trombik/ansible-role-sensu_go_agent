@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 require "serverspec"
 
@@ -12,6 +14,7 @@ cache_dir = "/var/cache/sensu/sensu-agent"
 default_group = "root"
 extra_packages = []
 backend_url = "ws://localhost:8081"
+gems = %w[sensu-plugin sensu-plugins-disk-checks]
 
 case os[:family]
 when "redhat"
@@ -29,6 +32,12 @@ end
 
 describe package(package) do
   it { should be_installed }
+end
+
+describe user(user) do
+  it { should exist }
+  it { should belong_to_group group }
+  it { should have_home_directory "/home/#{user}" }
 end
 
 extra_packages.each do |p|
@@ -96,5 +105,20 @@ end
 ports.each do |p|
   describe port(p) do
     it { should be_listening }
+  end
+end
+
+gems.each do |g|
+  case os[:family]
+  when "redhat"
+    describe command "/opt/sensu-plugins-ruby/embedded/bin/gem list --local" do
+      its(:stderr) { should eq "" }
+      its(:stdout) { should match(/#{g}/) }
+    end
+  else
+    describe package g do
+      let(:sudo_options) { "-u #{user} --set-home" }
+      it { should be_installed.by("gem") }
+    end
   end
 end
