@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source "https://rubygems.org"
 
 gem "kitchen-ansible", "~> 0.50.1", git: "https://github.com/trombik/kitchen-ansible", branch: "collections"
