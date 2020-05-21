@@ -1,9 +1,11 @@
 ---
 # tasks file for ansible-role-sensu_go_agent
 
-- include_vars: "{{ ansible_os_family }}.yml"
+- name: "Include {{ ansible_os_family }}.yml"
+  include_vars: "{{ ansible_os_family }}.yml"
 
-- include: "install-{{ ansible_os_family }}.yml"
+- name: "Include install-{{ ansible_os_family }}.yml"
+  include: "install-{{ ansible_os_family }}.yml"
 
 - name: Create sensu_go_agent_log_dir directory
   file:
