@@ -1,6 +1,7 @@
 ---
 sensu_go_agent_user: "{{ __sensu_go_agent_user }}"
 sensu_go_agent_group: "{{ __sensu_go_agent_group }}"
+sensu_go_agent_extra_groups: []
 sensu_go_agent_home: "/home/{{ sensu_go_agent_user }}"
 sensu_go_agent_package: "{{ __sensu_go_agent_package }}"
 sensu_go_agent_extra_packages: []

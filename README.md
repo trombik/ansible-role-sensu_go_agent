@@ -24,6 +24,7 @@ Ruby must be installed.
 |----------|-------------|---------|
 | `sensu_go_agent_user` | user of `sensu-agent` | `{{ __sensu_go_agent_user }}` |
 | `sensu_go_agent_group` | group of `sensu-agent` | `{{ __sensu_go_agent_group }}` |
+| `sensu_go_agent_extra_groups` | list of extra groups `sensu_go_agent_user` belongs to | `[]` |
 | `sensu_go_agent_home` | home directory of `sensu-agent` user | `/home/{{ sensu_go_agent_user }}` |
 | `sensu_go_agent_package` | package name of `sensu-agent` | `{{ __sensu_go_agent_package }}` |
 | `sensu_go_agent_extra_packages` | list of extra packages to install | `{{ __sensu_go_agent_extra_packages }}` |
