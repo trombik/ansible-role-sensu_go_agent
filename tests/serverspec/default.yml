@@ -11,6 +11,8 @@
       when: ansible_os_family != 'RedHat'
     - role: ansible-role-sensu_go_agent
   vars:
+    sensu_go_agent_extra_groups:
+      - bin
     os_sensu_go_agent_use_embedded_ruby:
       FreeBSD: no
       Debian: no

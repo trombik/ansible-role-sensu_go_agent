@@ -8,6 +8,7 @@ service = "sensu-agent"
 config  = "/etc/sensu/agent.yml"
 user    = "sensu"
 group   = "sensu"
+extra_groups = %w[bin]
 ports   = []
 log_dir = "/var/log/sensu"
 cache_dir = "/var/cache/sensu/sensu-agent"
@@ -36,7 +37,10 @@ end
 
 describe user(user) do
   it { should exist }
-  it { should belong_to_group group }
+  it { should belong_to_primary_group group }
+  extra_groups.each do |extra_group|
+    it { should belong_to_group extra_group }
+  end
   it { should have_home_directory "/home/#{user}" }
 end
 
