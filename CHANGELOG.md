@@ -1,3 +1,10 @@
+## Release 1.2.0
+
+* 674ca94 bugfix: lint
+* d6221c4 feature: introduce sensu_go_agent_extra_groups
+* fb65afb bugfix: lint
+* 6c111f1 doc: add a link to freshports
+
 ## Release 1.1.0
 
 * 87f5054 feature: support ruby gem plugins
