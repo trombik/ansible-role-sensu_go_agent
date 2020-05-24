@@ -1,3 +1,7 @@
+## Release 1.2.1
+
+* eb287f4 bugfix: use standard path to agent.yml
+
 ## Release 1.2.0
 
 * 674ca94 bugfix: lint
