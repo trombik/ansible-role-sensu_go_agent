@@ -1,0 +1,24 @@
+--- sensu-agent.~1~	2021-06-14 02:56:34.660733458 +0000
++++ sensu-agent	2021-06-14 03:22:29.281655461 +0000
+@@ -60,18 +60,9 @@
+   [ -z "$groups" ] && groups=$(groups $user | cut -d ":" -f2 |cut -d " " -f2,3| tr ' ' ",")
+
+   # Run the program!
+-
+-  chroot --userspec "$user":"$group" --groups "$groups" "$chroot" sh -c "
+-
+-    cd \"$chdir\"
+-    ulimit -n ${MAX_OPEN_FILES}
+-    exec \"$program\" $args
+-  " >> /var/log/sensu/sensu-agent.log 2>> /var/log/sensu/sensu-agent.log &
+-
+-  # Generate the pidfile from here. If we instead made the forked process
+-  # generate it there will be a race condition between the pidfile writing
+-  # and a process possibly asking for status.
+-  echo $! > $pidfile
++  start-stop-daemon --start --user ${user} --group ${group} --chroot ${chroot} --chdir ${chdir} \
++     --quiet --pidfile ${pidfile} --make-pidfile --background --no-close \
++     --exec ${program} -- ${args} >> /var/log/sensu/sensu-agent.log 2>>/var/log/sensu/sensu-agent.log
+
+   emit "$name started"
+   return 0
