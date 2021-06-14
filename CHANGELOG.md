@@ -1,3 +1,10 @@
+## Release 1.2.2
+
+* aab7402 bugfix: QA
+* d322227 bugfix: update box versions, support Devuan
+* 04ac14e bugfix: update gems
+* 670f257 bugfix: add GitHub Actions workflows
+
 ## Release 1.2.1
 
 * eb287f4 bugfix: use standard path to agent.yml
