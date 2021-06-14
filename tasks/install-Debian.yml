@@ -22,3 +22,13 @@
     validate: sh -n %s
   notify:
     - Restart sensu_go_agent
+
+- name: Patch /etc/init.d/sensu-agent
+  patch:
+    backup: yes
+    src: ubuntu.init.patch
+    dest: /etc/init.d/sensu-agent
+  when:
+    - ansible_service_mgr == 'sysvinit'
+  notify:
+    - Restart sensu_go_agent

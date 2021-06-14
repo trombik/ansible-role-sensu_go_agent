@@ -116,6 +116,8 @@ None
       when: ansible_os_family != 'RedHat'
     - role: ansible-role-sensu_go_agent
   vars:
+    sensu_go_agent_extra_groups:
+      - bin
     os_sensu_go_agent_use_embedded_ruby:
       FreeBSD: no
       Debian: no
@@ -127,7 +129,7 @@ None
 
     #  EMBEDDED_RUBY=true in /etc/default/sensu
     sensu_go_agent_config:
-      backend-url: ws://localhost:8081
+      backend-url: ws://127.0.0.1:8081
       cache-dir: "{{ sensu_go_agent_cache_dir }}"
 
     os_sensu_go_agent_extra_packages:
@@ -162,10 +164,13 @@ None
         priority: 100
 
     # see https://packagecloud.io/install/repositories/sensu/stable/script.deb.sh
+    # and https://packagecloud.io/install/repositories/sensu/stable/config_file.list?os=debian&dist=buster&source=script
     apt_repo_keys_to_add:
       - https://packagecloud.io/sensu/stable/gpgkey
+    __apt_os: "{% if ansible_distribution == 'Devuan' %}debian{% else %}ubuntu{% endif %}"
+    __apt_dist: "{% if ansible_distribution != 'Devuan' %}{{ ansible_distribution_release }}{% else %}{{ apt_repo_codename_devuan_to_debian[ansible_distribution_release] }}{% endif %}"
     apt_repo_to_add:
-      - deb https://packagecloud.io/sensu/stable/ubuntu/ bionic main
+      - "deb https://packagecloud.io/sensu/stable/{{ __apt_os }}/ {{ __apt_dist }} main"
     apt_repo_enable_apt_transport_https: True
 
     redhat_repo_extra_packages:

@@ -14,14 +14,14 @@ log_dir = "/var/log/sensu"
 cache_dir = "/var/cache/sensu/sensu-agent"
 default_group = "root"
 extra_packages = []
-backend_url = "ws://localhost:8081"
+backend_url = "ws://127.0.0.1:8081"
 gems = %w[sensu-plugin sensu-plugins-disk-checks]
 
 case os[:family]
 when "redhat"
   package = "sensu-go-agent"
   extra_packages = ["sensu-go-cli"]
-when "ubuntu"
+when "ubuntu", "devuan"
   package = "sensu-go-agent"
   extra_packages = ["sensu-go-cli"]
 when "freebsd"
